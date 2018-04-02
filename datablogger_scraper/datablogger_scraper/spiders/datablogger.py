@@ -6,6 +6,9 @@ from datablogger_scraper.items import DatabloggerScraperItem
 import re
 from lxml import html
 from scrapy.http import HtmlResponse
+import requests
+import urllib.request
+
 
 
 
@@ -26,7 +29,7 @@ class DatabloggerSpider(CrawlSpider):
                 
     #         ),
     #         follow=True,
-    #         callback="parse_items"
+    #         callback="parse"
     #     )
     # ]
 
@@ -39,35 +42,47 @@ class DatabloggerSpider(CrawlSpider):
     def parse(self, response):
         # The list of items that are found on the particular page
         items = []
-        # Only extract canonicalized and unique links (with respect to the current page)
-        print(type(response))
-        test_str = response.text
+        # Fetch the html from the given url
+        with urllib.request.urlopen(response.url) as response:
+            current_page = response.read().decode('utf-8')
+            # Filter and replace a string between two arguments using Regex
+            regex = r"(Back to)(.|\n)*?<br><br>"
+            regex_response = html.fromstring(re.sub(regex, "", current_page))
+            print(type(regex_response))
+            # Extract URL from the html, using xpath
+            regex3 = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
+            print(regex3)
+            print(type(regex3))
+
+
+        # def process_value(value):
+        #     print(value)
+            # m = re.search("javascript:goToPage\('(.*?)'", value)
+            # if m:
+            #     return m.group(1)
+        #print(response.text)
+        #print(HtmlResponse(test_str))
         # Removes string between two placeholders with regex
-        regex = r"(Back to)(.|\n)*?<br><br>"
-        regex_response = re.sub(regex, "", test_str)
-        regex_response2 = HtmlResponse(regex_response) ##TODO: fix here!
-        print(type(regex_response2))
-        # matches = re.finditer(regex, regex_response)
-        # print(matches)
-        # for matchNum, match in enumerate(matches):
-        #     matchNum = matchNum + 1
+        # regex = r"(Back to)(.|\n)*?<br><br>"
+        # regex_response = re.sub(regex, "", test_str)
+        # regex_response2 = HtmlResponse(regex_response) ##TODO: fix here!
+      
+        # #TODO: ensure regex_response2 has url data
+        # #TODO: apply xpath when extracting_links
+        # #print(regex_response2)
+        # links = LinkExtractor(canonicalize=True, unique=True, restrict_xpaths = ('//div[@class="work_area_content"]/a')).extract_links(response)
+        # print(type(links))
+        # # #Now go through all the found links
+        # print(links)
+        # for link in links:
+        #     item = DatabloggerScraperItem()
+        #     item['url_from'] = response.url
+        #     item['url_to'] = link.url
+        #     items.append(item)
+        #     #print(items)
+        #     yield scrapy.Request(link.url, callback=self.parse, dont_filter=True)
 
-        #     print ("Match {matchNum} was found at {start}-{end}: {match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
-
-        #TODO: ensure regex_response2 has url data
-        #TODO: apply xpath when extracting_links
-        #print(regex_response2)
-        links = LinkExtractor(canonicalize=True, unique=True, restrict_xpaths = ('//div[@class="work_area_content"]/a')).extract_links(regex_response2)
-        print(type(links))
-        # #Now go through all the found links
-        print(links)
-        for link in links:
-            item = DatabloggerScraperItem()
-            item['url_from'] = response.url
-            item['url_to'] = link.url
-            items.append(item)
-            print(items)
-        #Return all the found items
-        return items
+        # #Return all the found items
+        # return items
 
 
