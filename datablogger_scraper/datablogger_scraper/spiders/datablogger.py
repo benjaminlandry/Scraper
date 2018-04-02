@@ -39,29 +39,35 @@ class DatabloggerSpider(CrawlSpider):
     # Method for parsing items
     def parse(self, response):
         # The list of items that are found on the particular page
-        items = []
+        items = {}
         # Fetch the html from the given url
         with urllib.request.urlopen(response.url) as response:
             current_page = response.read().decode('utf-8')
             # Filter and replace a string between two arguments using Regex
             regex = r"(Back to)(.|\n)*?<br><br>"
             regex_response = html.fromstring(re.sub(regex, "", current_page))
-            print(type(regex_response))
+            #print(type(regex_response))
             # Extract URL from the html, using xpath
-            regex3 = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
-            print(regex3)
-            print(type(regex3))
+            links = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
+            print(links)
+            #print(type(links))
+   
+        # Store URLs in a dictionary-list data structure
+        for link in links:
+            # Turn the relative url to an absolute url
+            absolute_url = "".join('http://142.133.174.149:8888/' + link)    
+            #TODO: add each section of the url in a list of the dictionary & make the dictionary multi-layered
+            items[link] = absolute_url
+            # Callback Parse function if links variable contain urls
+            #TODO: how to callback itself without overriding previous data in for-loop
+            yield scrapy.Request(items[link], callback=self.parse, dont_filter=True)
+        print(items)
+        # Callback Parse function if links variable contain urls
+        # for link in items:
+        #     #print(items[link])
+        #     #TODO: how to callback itself without overriding previous data in for-loop
+        #     yield scrapy.Request(items[link], callback=self.parse, dont_filter=True)
 
-        # print(type(links))
-        # # #Now go through all the found links
-        # print(links)
-        # for link in links:
-        #     item = DatabloggerScraperItem()
-        #     item['url_from'] = response.url
-        #     item['url_to'] = link.url
-        #     items.append(item)
-        #     #print(items)
-        #     yield scrapy.Request(link.url, callback=self.parse, dont_filter=True)
 
         # #Return all the found items
         # return items
