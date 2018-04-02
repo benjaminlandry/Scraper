@@ -10,8 +10,6 @@ import requests
 import urllib.request
 
 
-
-
 class DatabloggerSpider(CrawlSpider):
     # The name of the spider
     name = "jobs"
@@ -54,23 +52,6 @@ class DatabloggerSpider(CrawlSpider):
             print(regex3)
             print(type(regex3))
 
-
-        # def process_value(value):
-        #     print(value)
-            # m = re.search("javascript:goToPage\('(.*?)'", value)
-            # if m:
-            #     return m.group(1)
-        #print(response.text)
-        #print(HtmlResponse(test_str))
-        # Removes string between two placeholders with regex
-        # regex = r"(Back to)(.|\n)*?<br><br>"
-        # regex_response = re.sub(regex, "", test_str)
-        # regex_response2 = HtmlResponse(regex_response) ##TODO: fix here!
-      
-        # #TODO: ensure regex_response2 has url data
-        # #TODO: apply xpath when extracting_links
-        # #print(regex_response2)
-        # links = LinkExtractor(canonicalize=True, unique=True, restrict_xpaths = ('//div[@class="work_area_content"]/a')).extract_links(response)
         # print(type(links))
         # # #Now go through all the found links
         # print(links)
