@@ -20,17 +20,6 @@ class DatabloggerSpider(CrawlSpider):
     # The URLs to start with
     start_urls = ['http://142.133.174.149:8888/TestSuites']
 
-    # This spider has one rule: extract all (unique and canonicalized) links, follow them and parse them using the parse_items method
-    # rules = [
-    #     Rule(
-    #         LinkExtractor(
-                
-    #         ),
-    #         follow=True,
-    #         callback="parse"
-    #     )
-    # ]
-
     # Method which starts the requests by visiting all URLs specified in start_urls
     # def start_requests(self):
     #     for url in self.start_urls:
@@ -49,24 +38,41 @@ class DatabloggerSpider(CrawlSpider):
             #print(type(regex_response))
             # Extract URL from the html, using xpath
             links = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
-            print(links)
+            #print(links)
             #print(type(links))
    
         # Store URLs in a dictionary-list data structure
         for link in links:
             # Turn the relative url to an absolute url
-            absolute_url = "".join('http://142.133.174.149:8888/' + link)    
+            absolute_url = "".join('http://142.133.174.149:8888/' + link)   
             #TODO: add each section of the url in a list of the dictionary & make the dictionary multi-layered
-            items[link] = absolute_url
+            #seperated_link | absolute_url => link is dictionary-key | absolute_url in list
+            seperated_link = link.split(".")
+            # TODO: create tree structure with each element of link
+
+
+
+
+
+
+
+            
+            for key in seperated_link:
+                if(key in items):
+
+                    pass
+                    # Add extra dict layer then add url in that layer
+                else:
+                    items[link] = absolute_url # Add url to current layer
+
+
+
+            #print(len(seperated_link))
+            #print(seperated_link)
+
             # Callback Parse function if links variable contain urls
             #TODO: how to callback itself without overriding previous data in for-loop
             yield scrapy.Request(items[link], callback=self.parse, dont_filter=True)
-        print(items)
-        # Callback Parse function if links variable contain urls
-        # for link in items:
-        #     #print(items[link])
-        #     #TODO: how to callback itself without overriding previous data in for-loop
-        #     yield scrapy.Request(items[link], callback=self.parse, dont_filter=True)
 
 
         # #Return all the found items
