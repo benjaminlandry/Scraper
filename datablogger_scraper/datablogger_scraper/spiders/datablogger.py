@@ -8,7 +8,7 @@ from lxml import html
 from scrapy.http import HtmlResponse
 import requests
 import urllib.request
-
+from treelib import Node, Tree
 
 class DatabloggerSpider(CrawlSpider):
     # The name of the spider
@@ -20,15 +20,21 @@ class DatabloggerSpider(CrawlSpider):
     # The URLs to start with
     start_urls = ['http://142.133.174.149:8888/TestSuites']
 
+    method_index == True
     # Method which starts the requests by visiting all URLs specified in start_urls
-    # def start_requests(self):
-    #     for url in self.start_urls:
-    #         yield scrapy.Request(url, callback=self.parse, dont_filter=True)
+    def start_requests(self):
+        tree = Tree()
+        tree.create_node(start_urls)
+        
+        for url in self.start_urls:
+            yield scrapy.Request(url, callback=self.parse, dont_filter=True)
 
     # Method for parsing items
     def parse(self, response):
-        # The list of items that are found on the particular page
-        items = {}
+        if(self.method_index == True)
+            start_requests()
+            self.method_index == False 
+        
         # Fetch the html from the given url
         with urllib.request.urlopen(response.url) as response:
             current_page = response.read().decode('utf-8')
@@ -40,42 +46,28 @@ class DatabloggerSpider(CrawlSpider):
             links = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
             #print(links)
             #print(type(links))
-   
-        # Store URLs in a dictionary-list data structure
+            
+        if(response.meta.parent_link != None)
+            parent_link = response.meta.parent_link
+            
+        # Store URLs in a tree or dictionary-list data structure
         for link in links:
             # Turn the relative url to an absolute url
             absolute_url = "".join('http://142.133.174.149:8888/' + link)   
-            #TODO: add each section of the url in a list of the dictionary & make the dictionary multi-layered
             #seperated_link | absolute_url => link is dictionary-key | absolute_url in list
-            seperated_link = link.split(".")
+            #seperated_link = link.split(".")
             # TODO: create tree structure with each element of link
-
-
-
-
-
-
-
+            # TODO: Check what value link and absolute_link has | check if link is a unique name (the absolute path) or the latest name(relative path)
             
-            for key in seperated_link:
-                if(key in items):
+            data = [link, absolute_url]
+            tree.create_node(link, link, parent_link, data)
 
-                    pass
-                    # Add extra dict layer then add url in that layer
-                else:
-                    items[link] = absolute_url # Add url to current layer
+            request = scrapy.Request(absolute_url, callback=self.parse, dont_filter=True)
+            request.meta['parent_link'] = link
 
-
-
-            #print(len(seperated_link))
-            #print(seperated_link)
 
             # Callback Parse function if links variable contain urls
             #TODO: how to callback itself without overriding previous data in for-loop
-            yield scrapy.Request(items[link], callback=self.parse, dont_filter=True)
-
-
-        # #Return all the found items
-        # return items
+            yield request
 
 
