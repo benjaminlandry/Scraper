@@ -10,6 +10,7 @@ import requests
 #import urllib.request  # for python3
 import urllib # for python2
 from treelib import Node, Tree
+import sys, traceback
 
 class DatabloggerSpider(CrawlSpider):
     # The name of the spider
@@ -45,37 +46,40 @@ class DatabloggerSpider(CrawlSpider):
             # Filter and replace a string between two arguments using Regex
             regex = r"(Back to)(.|\n)*?<br><br>"
             regex_response = html.fromstring(re.sub(regex, "", current_page))
-            #print(type(regex_response))
             # Extract URL from the html, using xpath
             links = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
             #print(links)
-            #print(type(links))
-        
-        # Try if parent_link exists at the start of crawling 
-        try:
-            self.parent_link = response.meta.parent_link 
-        except AttributeError:
-            pass
-        # Store URLs in a tree or dictionary-list data structure
-        for link in links:
-            # Turn the relative url to an absolute url
-            absolute_url = "".join('http://142.133.174.148:8888/' + link)   
-            print(link)
-            print(self.parent_link)
-            # TODO: create tree structure with each element of link
-            # TODO: Check what value link and absolute_link has | check if link is a unique name (the absolute path) or the latest name(relative path)
-            data = [link, absolute_url]
-            print
-            self.tree.create_node(link, link, self.parent_link, data)
 
-            request = scrapy.Request(absolute_url, callback=self.parse, dont_filter=True)
-            request.meta['parent_link'] = link
+            ## Store URLs in a tree or dictionary-list data structure
+            # set parent of a node e.g.(link) to the variable parent_link
+            for link in links:
+                try:
+                    print(self.tree.parent(link))
+                    if (self.tree.parent(link) is None):
+                        self.parent_link = self.start_urls
+                    else:
+                        self.parent_link = self.tree.parent(link)
+                except:
+                    pass
+
+                # Turn the relative url to an absolute url
+                absolute_url = "".join('http://142.133.174.148:8888/' + link)   
+                # TODO: create tree structure with each element of link
+                # TODO: Check what value link and absolute_link has | check if link is a unique name (the absolute path) or the latest name(relative path)
+                data = [link, absolute_url]
+                #print(data)
+                #print(link)
+                #print(self.parent_link)
+                #self.tree.create_node(link, link, parent=self.parent_link, data=data)
+                print(self.tree.create_node(link, link, parent=self.parent_link, data=data)) ##why won't the parent be set when you create a node for the next layer???
+                request = scrapy.Request(absolute_url, callback=self.parse, dont_filter=True)
 
 
-            # Callback Parse function if links variable contain urls
-            #TODO: how to callback itself without overriding previous data in for-loop
-            yield request
+                # Callback Parse function if links variable contain urls
+                #TODO: how to callback itself without overriding previous data in for-loop
+                yield request
 
-        #self.tree.show()
-        #print(self.tree.to_json(with_data=True))
+            #self.tree.show()
+            #print(self.tree.to_json(with_data=True))
+            ##
 
