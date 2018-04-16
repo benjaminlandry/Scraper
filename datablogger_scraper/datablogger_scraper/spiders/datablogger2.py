@@ -52,25 +52,26 @@ class DatabloggerSpider(CrawlSpider):
             # Extract URL from the html, using xpath
             links = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
 
-            ## Store URLs in a tree or dictionary-list data structure | links stores all the children
-            # set parent of a node e.g.(link) to the variable parent_link
-            for link in links: ### HERE ###
-                try:
-                    print('PARENT_LINK_A', parent_link)  ### HERE produces correct parent_link value
-                    # Turn the relative url to an absolute url
-                    absolute_url = "".join('http://142.133.174.148:8888/' + link)   
-                    # TODO: create tree structure with each element of link
-                    data = [link, absolute_url]
-                    print(self.tree.create_node(link, link, parent=parent_link, data=data)) ### HERE does NOT produces correct parent_link value | issue is create_node function.
-                    request = scrapy.Request(absolute_url, callback=self.parse, dont_filter=False)
-                    # Callback Parse function if links variable contain urls
-                    logging.warning('YIELD')
-                    #yield {'data': data, 'link': link, 'parent_link': self.parent_link}
-                    yield request
-                except:
-                    print('PARENT_LINK_C', parent_link)
-                    traceback.print_exc()
-                time.sleep(1)
+        ## Store URLs in a tree or dictionary-list data structure | links stores all the children
+        # set parent of a node e.g.(link) to the variable parent_link
+        for link in links: ### HERE ###
+            try:
+                print('PARENT_LINK_A', parent_link)  ### HERE produces correct parent_link value
+                # Turn the relative url to an absolute url
+                absolute_url = "".join('http://142.133.174.148:8888/' + link)   
+                # TODO: create tree structure with each element of link
+                data = [link, absolute_url]
+                print("NODE_TREE", self.tree.create_node(link, link, parent=parent_link, data=data)) ### HERE does NOT produces correct parent_link value | issue is create_node function.
+
+                request = scrapy.Request(absolute_url, callback=self.parse, dont_filter=False)
+                # Callback Parse function if links variable contain urls
+                logging.warning('YIELD')
+                #yield {'data': data, 'link': link, 'parent_link': self.parent_link}
+                yield request
+            except:
+                print('PARENT_LINK_C', parent_link)
+                traceback.print_exc()
+            time.sleep(1)
 
             #self.tree.show()
             #print(self.tree.to_json(with_data=True))
