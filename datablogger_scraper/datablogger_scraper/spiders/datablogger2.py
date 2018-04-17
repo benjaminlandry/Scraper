@@ -28,8 +28,10 @@ class DatabloggerSpider(CrawlSpider):
     method_index = True
     # Method which starts the requests by visiting all URLs specified in start_urls
     def start_requests(self):
-        self.tree = Tree()
+        self.tree = Tree() 
         parent_link = self.start_urls[0].replace("http://142.133.174.148:8888/", "")
+        logging.warning('THE BEGINNING')
+
         self.tree.create_node(parent_link, parent_link)
         yield scrapy.Request(self.start_urls[0], callback=self.parse, dont_filter=True)
         
@@ -59,7 +61,6 @@ class DatabloggerSpider(CrawlSpider):
                 print('PARENT_LINK_A', parent_link)  ### HERE produces correct parent_link value
                 # Turn the relative url to an absolute url
                 absolute_url = "".join('http://142.133.174.148:8888/' + link)   
-                # TODO: create tree structure with each element of link
                 data = [link, absolute_url]
                 print("NODE_TREE", self.tree.create_node(link, link, parent=parent_link, data=data)) ### HERE does NOT produces correct parent_link value | issue is create_node function.
 
