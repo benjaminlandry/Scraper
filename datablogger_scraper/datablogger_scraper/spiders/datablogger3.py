@@ -24,7 +24,7 @@ class DatabloggerSpider(CrawlSpider):
     allowed_domains = ['142.133.174.148']
     
     # The URLs to start with
-    start_urls = ['http://142.133.174.148:8888/AfgOpenIdConnectTestSuites']
+    start_urls = ['http://142.133.174.148:8888/TestSuites']
     #start_urls = ['http://142.133.174.148:8888/TestCases']
 
     method_index = True
@@ -51,8 +51,11 @@ class DatabloggerSpider(CrawlSpider):
             regex = r"(Back to)(.|\n)*?<br><br>"
             regex_response = html.fromstring(re.sub(regex, "", current_page))
             # Extract URL from the html, using xpath
-            links = regex_response.xpath('//div[@class="work_area_content"]//div[not(@class="footer") and not(@class="popup_window")]//@href')
+            links = regex_response.xpath('//div[@class="work_area_content"]//div[not(@class="footer") and not(@class="popup_window")]//@href | \
+             //div[@class="work_area_content"]/a[not(contains(text(),"Shutdown")) and not(contains(text(),"Guide")) and  not(contains(text(),"root"))]/@href')
             print(links)
+            #//div[@class="work_area_content"]//a/@href | #//div[@class="work_area_content"]/a[not(contains(text(),"Shutdown"))]/@href')
+            #make /a into //a, when parsing stable
 
         ## Store URLs in a tree or dictionary-list data structure | links stores all the children
         # set parent of a node e.g.(link) to the variable parent_link

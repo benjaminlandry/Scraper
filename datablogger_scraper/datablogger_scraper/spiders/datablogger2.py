@@ -52,7 +52,8 @@ class DatabloggerSpider(CrawlSpider):
             regex = r"(Back to)(.|\n)*?<br><br>"
             regex_response = html.fromstring(re.sub(regex, "", current_page))
             # Extract URL from the html, using xpath
-            links = regex_response.xpath('//div[@class="work_area_content"]/a/@href')
+            links = regex_response.xpath('//div[@class="work_area_content"]//div[not(@class="footer") and not(@class="popup_window")]//@href | //div[@class="work_area_content"]/a[not(contains(text(),"shutdown"))]/@href')
+
 
         ## Store URLs in a tree or dictionary-list data structure | links stores all the children
         # set parent of a node e.g.(link) to the variable parent_link
