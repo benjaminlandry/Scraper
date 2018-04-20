@@ -16,15 +16,18 @@ import time
 from anytree import Node, RenderTree, AnyNode
 from anytree.exporter import JsonExporter
 
+#TODO: verify if there are duplicate urls being generated
+#TODO: put JSON results into Mongodb
+
 class DatabloggerSpider(CrawlSpider):
     # The name of the spider
-    name = "trialspider2"
+    name = "rbt"
 
     # The domains that are allowed (links to other domains are skipped)
     allowed_domains = ['142.133.174.148']
     
     # The URLs to start with
-    start_urls = ['http://142.133.174.148:8888/AfgOpenIdConnectTestSuites']
+    start_urls = ['http://142.133.174.148:8888/TestSuites']
     #start_urls = ['http://142.133.174.148:8888/TestCases']
 
     method_index = True
@@ -72,8 +75,8 @@ class DatabloggerSpider(CrawlSpider):
             yield request
 
         ## Print root-tree that displays a node's relationship between its parent and its potential children. Each node is in NodeMixin format.
-        print("RENDER:", RenderTree(self.root))
-        # exporter = JsonExporter(indent=2, sort_keys=True)
-        # print(exporter.export(root))
+        #print("RENDER:", RenderTree(self.root))
+        exporter = JsonExporter(indent=2, sort_keys=True)
+        print(exporter.export(self.root))
         
             
