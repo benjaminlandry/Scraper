@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import Rule, CrawlSpider
-#from datablogger_scraper.items import DatabloggerScraperItem
+from scrapy import signals
 import re
 from lxml import html
 from scrapy.http import HtmlResponse
@@ -10,14 +9,13 @@ import requests
 import urllib.request  # for python3
 #import urllib # for python2
 from treelib import Node, Tree
-import sys, traceback
-import logging
-import time
 from anytree import Node, RenderTree, AnyNode
-from anytree.exporter import JsonExporter
+from anytree.exporter import JsonExporter, DictExporter
 
-#TODO: verify if there are duplicate urls being generated
-#TODO: put JSON results into Mongodb
+import pymongo
+from pymongo import MongoClient
+
+### Comand to execute webcrawler: scrapy crawl rbt ###
 
 class DatabloggerSpider(CrawlSpider):
     # The name of the spider
@@ -27,7 +25,8 @@ class DatabloggerSpider(CrawlSpider):
     allowed_domains = ['142.133.174.148']
     
     # The URLs to start with
-    start_urls = ['http://142.133.174.148:8888/TestSuites']
+    start_urls = ['http://142.133.174.148:8888/AfgAfg3MasterSmokeTestSuites']
+    #start_urls = ['http://142.133.174.148:8888/TestSuites']
     #start_urls = ['http://142.133.174.148:8888/TestCases']
 
     method_index = True
@@ -70,13 +69,39 @@ class DatabloggerSpider(CrawlSpider):
 
             ## Recursively call parse function passing current_url and current_node (format url & NodeMixin, respectively)
             current_url = "".join('http://142.133.174.148:8888/' + link)
-            request =  scrapy.Request(current_url, callback=self.parse)
+            request =  scrapy.Request(current_url, callback=self.parse, dont_filter=False)
             request.meta['parent'] = current_node
             yield request
 
         ## Print root-tree that displays a node's relationship between its parent and its potential children. Each node is in NodeMixin format.
         #print("RENDER:", RenderTree(self.root))
-        exporter = JsonExporter(indent=2, sort_keys=True)
-        print(exporter.export(self.root))
+        #exporter = JsonExporter(indent=2, sort_keys=True)        
+        #print(exporter.export(self.root))        
+ 
+ 
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        """ https://linode.com/docs/development/python/use-scrapy-to-extract-data-from-html-tags/ """
+        spider = super(DatabloggerSpider, cls).from_crawler(crawler, *args, **kwargs)
+        # Register the spider_closed handler on spider_closed signal
+        crawler.signals.connect(spider.spider_closed, signals.spider_closed)
+        return spider
+
+    def spider_closed(self):
+        """ Handler for spider_closed signal."""
+        print("Goodbye vermin")
+        exporter = DictExporter()  
+        exported_result = exporter.export(self.root)
+        self.postToMongo('localhost', 'RBT', 'tests', exported_result)
+    
+        
+    ## Post the Dictionary Results to Mongodb
+    def postToMongo(self, mongoIP, database, collection, log):
+        client = MongoClient(mongoIP, 27017) # connects client with the mongoserver
+        db = client[database] # create/connect to a database
+        col = db[collection]  # create/connect to a collection
+
+        col.insert_one(log)  # insert log document in a collection
         
             
