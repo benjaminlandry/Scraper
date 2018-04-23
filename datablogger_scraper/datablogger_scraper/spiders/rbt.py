@@ -11,7 +11,6 @@ import urllib.request  # for python3
 from treelib import Node, Tree
 from anytree import Node, RenderTree, AnyNode
 from anytree.exporter import JsonExporter, DictExporter
-
 import pymongo
 from pymongo import MongoClient
 
@@ -25,9 +24,14 @@ class DatabloggerSpider(CrawlSpider):
     allowed_domains = ['142.133.174.148']
     
     # The URLs to start with
-    start_urls = ['http://142.133.174.148:8888/AfgAfg3MasterSmokeTestSuites']
-    #start_urls = ['http://142.133.174.148:8888/TestSuites']
+    #start_urls = ['http://142.133.174.148:8888/AfgAfg4MasterSmokeTestSuites']
+    start_urls = ['http://142.133.174.148:8888/TestSuites']
     #start_urls = ['http://142.133.174.148:8888/TestCases']
+
+    IPAndPort = 'http://142.133.174.148:8888/'
+    mongoIP = 'localhost' 
+    database = 'RBT'
+    collection = 'tests'
 
     method_index = True
 
@@ -36,7 +40,7 @@ class DatabloggerSpider(CrawlSpider):
         ## Create root Node
         if(self.method_index == True):
             self.root_url = self.start_urls[0]
-            self.root_link = self.start_urls[0].replace("http://142.133.174.148:8888/", "")
+            self.root_link = self.start_urls[0].replace(self.IPAndPort, "")
             self.root = AnyNode(id=self.root_link)
             self.method_index = False 
         
@@ -46,10 +50,11 @@ class DatabloggerSpider(CrawlSpider):
         parent = self.root
         if (response.url != self.root_url):
             parent_url = response.url
-            parent_link = parent_url.replace("http://142.133.174.148:8888/", "")
+            parent_link = parent_url.replace(self.IPAndPort, "")
             parent = response.meta['parent']
-            print("I am your parent", parent)
+            #print("I am your parent", parent)
         
+        #NOTE: Change urllib.request.urlopen() block, e.g. regex and xpath, to filter out urls for desired target_tool.
         ## GET and Filter out links from webpage
         # Fetch the html from webpage using provided url
         with urllib.request.urlopen(parent_url) as response:
@@ -60,7 +65,7 @@ class DatabloggerSpider(CrawlSpider):
             # Extract URL from the html, using xpath
             links = regex_response.xpath('//div[@class="work_area_content"]//div[not(@class="footer") and not(@class="popup_window")]//@href | \
              //div[@class="work_area_content"]/a[not(contains(text(),"Shutdown")) and not(contains(text(),"Guide")) and  not(contains(text(),"root"))]/@href')
-            print(links)
+            #print(links)
         
         ## Create multiple nodes for current_parent
         for link in links:
@@ -68,7 +73,7 @@ class DatabloggerSpider(CrawlSpider):
             current_node = AnyNode(id=link, parent=parent)
 
             ## Recursively call parse function passing current_url and current_node (format url & NodeMixin, respectively)
-            current_url = "".join('http://142.133.174.148:8888/' + link)
+            current_url = "".join(self.IPAndPort + link)
             request =  scrapy.Request(current_url, callback=self.parse, dont_filter=False)
             request.meta['parent'] = current_node
             yield request
@@ -93,7 +98,7 @@ class DatabloggerSpider(CrawlSpider):
         print("Goodbye vermin")
         exporter = DictExporter()  
         exported_result = exporter.export(self.root)
-        self.postToMongo('localhost', 'RBT', 'tests', exported_result)
+        self.postToMongo(self.mongoIP, self.database, self.collection, exported_result)
     
         
     ## Post the Dictionary Results to Mongodb
