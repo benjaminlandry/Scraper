@@ -25,8 +25,13 @@ class DatabloggerSpider(CrawlSpider):
     
     # The URLs to start with
     #start_urls = ['http://142.133.174.148:8888/AfgAfg4MasterSmokeTestSuites']
-    start_urls = ['http://142.133.174.148:8888/TestSuites']
+    #start_urls = ['http://142.133.174.148:8888/TestSuites']
     #start_urls = ['http://142.133.174.148:8888/TestCases']
+
+    #start_urls = ['http://142.133.174.148:8888/MdnUcTestSuites.TestSuiteMdnUcFullRegression0201']
+    #start_urls = ['http://142.133.174.148:8888/AfgAfg40ReleaseTestSuites.TestSuiteBsfAllIpv6']
+    #start_urls = ['http://142.133.174.148:8888/AfgAfg40ReleaseTestSuites']
+    #start_urls = ['http://142.133.174.148:8888/AfgAfg40ReleaseTestSuites.TestSuiteAfgBsfIpv6Sc111']
 
     IPAndPort = 'http://142.133.174.148:8888/'
     mongoIP = 'localhost' 
