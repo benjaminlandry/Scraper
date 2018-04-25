@@ -24,7 +24,7 @@ ROBOTSTXT_OBEY = True
 ### CHANGEABLE INFO
 LOG_LEVEL = 'INFO'
 #LOG_FILE = 'logs.txt'
-#DOWNLOAD_DELAY = 0.25
+DOWNLOAD_DELAY = 0.25
 ###
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)

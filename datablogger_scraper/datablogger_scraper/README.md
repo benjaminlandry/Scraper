@@ -15,3 +15,9 @@ In rbt.py file:
 
 https://python.gotrained.com/scrapy-tutorial-web-scraping-craigslist/
 https://linode.com/docs/development/python/use-scrapy-to-extract-data-from-html-tags/
+
+
+File Layout:
+- /settings.py 
+- /spiders/rbt.py
+- filter.py
