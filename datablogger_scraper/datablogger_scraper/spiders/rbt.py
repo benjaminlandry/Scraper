@@ -25,7 +25,7 @@ class DatabloggerSpider(CrawlSpider):
     
     # The URLs to start with
     #start_urls = ['http://142.133.174.148:8888/AfgAfg4MasterSmokeTestSuites']
-    #start_urls = ['http://142.133.174.148:8888/TestSuites']
+    start_urls = ['http://142.133.174.148:8888/TestSuites']
     #start_urls = ['http://142.133.174.148:8888/TestCases']
 
 
